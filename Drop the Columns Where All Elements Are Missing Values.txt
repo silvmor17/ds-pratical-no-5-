@@ -1,0 +1,165 @@
+Assess Superstep
+Data quality refers to the condition of a set of qualitative or quantitative variables. Data quality is a
+multidimensional measurement of the acceptability of specific data sets. In business, data quality is measured to
+determine whether data can be used as a basis for reliable intelligence extraction for supporting organizational
+decisions. Data profiling involves observing in your data sources all the viewpoints that the information offers.
+The main goal is to determine if individual viewpoints are accurate and complete. The Assess superstep
+determines what additional processing to apply to the entries that are noncompliant.
+Errors
+Typically, one of four things can be done with an error to the data.
+1. Accept the Error
+2. Reject the Error
+3. Correct the Error
+4. Create a Default Value
+A. Perform error management on the given data using pandas package.
+Python pandas package enables several automatic error-management features.
+File Location: C:\VKHCG\01-Vermeulen\02-Assess
+Missing Values in Pandas:
+i. Drop the Columns Where All Elements Are Missing Values
+Code :
+################### Assess-Good-Bad-01.py########################
+# -*- coding: utf-8 -*-
+################################################################
+import sys
+import os
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+61
+import pandas as pd
+################################################################
+Base='C:/VKHCG'
+################################################################
+print('################################')
+print('Working Base :',Base, ' using ', sys.platform)
+print('################################')
+################################################################
+sInputFileName='Good-or-Bad.csv'
+sOutputFileName='Good-or-Bad-01.csv'
+Company='01-Vermeulen'
+################################################################
+Base='C:/VKHCG'
+################################################################
+sFileDir=Base + '/' + Company + '/02-Assess/01-EDS/02-Python'
+if not os.path.exists(sFileDir):
+ os.makedirs(sFileDir)
+################################################################
+### Import Warehouse
+################################################################
+sFileName=Base + '/' + Company + '/00-RawData/' + sInputFileName
+print('Loading :',sFileName)
+RawData=pd.read_csv(sFileName,header=0)
+print('################################')
+print('## Raw Data Values')
+print('################################')
+print(RawData)
+print('################################')
+print('## Data Profile')
+print('################################')
+print('Rows :',RawData.shape[0])
+print('Columns :',RawData.shape[1])
+print('################################')
+################################################################
+sFileName=sFileDir + '/' + sInputFileName
+RawData.to_csv(sFileName, index = False)
+################################################################
+TestData=RawData.dropna(axis=1, how='all')
+################################################################
+print('################################')
+print('## Test Data Values')
+print('################################')
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+62
+print(TestData)
+print('################################')
+print('## Data Profile')
+print('################################')
+print('Rows :',TestData.shape[0])
+print('Columns :',TestData.shape[1])
+print('################################')
+################################################################
+sFileName=sFileDir + '/' + sOutputFileName
+TestData.to_csv(sFileName, index = False)
+################################################################
+print('################################')
+print('### Done!! #####################')
+print('################################')
+################################################################
+Output:
+>>>
+======= RESTART: C:\VKHCG\01-Vermeulen\02-Assess\Assess-Good-Bad-01.py =======
+################################
+Working Base : C:/VKHCG using win32
+################################
+Loading : C:/VKHCG/01-Vermeulen/00-RawData/Good-or-Bad.csv
+################################
+## Raw Data Values
+################################
+ ID FieldA FieldB FieldC FieldD FieldE FieldF FieldG
+0 1.0 Good Better Best 1024.0 NaN 10241.0 1
+1 2.0 Good NaN Best 512.0 NaN 5121.0 2
+2 3.0 Good Better NaN 256.0 NaN 256.0 3
+3 4.0 Good Better Best NaN NaN 211.0 4
+4 5.0 Good Better NaN 64.0 NaN 6411.0 5
+5 6.0 Good NaN Best 32.0 NaN 32.0 6
+6 7.0 NaN Better Best 16.0 NaN 1611.0 7
+7 8.0 NaN NaN Best 8.0 NaN 8111.0 8
+8 9.0 NaN NaN NaN 4.0 NaN 41.0 9
+9 10.0 A B C 2.0 NaN 21111.0 10
+10 NaN NaN NaN NaN NaN NaN NaN 11
+11 10.0 Good Better Best 1024.0 NaN 102411.0 12
+12 10.0 Good NaN Best 512.0 NaN 512.0 13
+13 10.0 Good Better NaN 256.0 NaN 1256.0 14
+14 10.0 Good Better Best NaN NaN NaN 15
+15 10.0 Good Better NaN 64.0 NaN 164.0 16
+16 10.0 Good NaN Best 32.0 NaN 322.0 17
+17 10.0 NaN Better Best 16.0 NaN 163.0 18
+18 10.0 NaN NaN Best 8.0 NaN 844.0 19
+19 10.0 NaN NaN NaN 4.0 NaN 4555.0 20
+20 10.0 A B C 2.0 NaN 111.0 21
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+63
+################################
+## Data Profile
+################################
+Rows : 21
+Columns : 8
+################################
+################################
+## Test Data Values
+################################
+ ID FieldA FieldB FieldC FieldD FieldF FieldG
+0 1.0 Good Better Best 1024.0 10241.0 1
+1 2.0 Good NaN Best 512.0 5121.0 2
+2 3.0 Good Better NaN 256.0 256.0 3
+3 4.0 Good Better Best NaN 211.0 4
+4 5.0 Good Better NaN 64.0 6411.0 5
+5 6.0 Good NaN Best 32.0 32.0 6
+6 7.0 NaN Better Best 16.0 1611.0 7
+7 8.0 NaN NaN Best 8.0 8111.0 8
+8 9.0 NaN NaN NaN 4.0 41.0 9
+9 10.0 A B C 2.0 21111.0 10
+10 NaN NaN NaN NaN NaN NaN 11
+11 10.0 Good Better Best 1024.0 102411.0 12
+12 10.0 Good NaN Best 512.0 512.0 13
+13 10.0 Good Better NaN 256.0 1256.0 14
+14 10.0 Good Better Best NaN NaN 15
+15 10.0 Good Better NaN 64.0 164.0 16
+16 10.0 Good NaN Best 32.0 322.0 17
+17 10.0 NaN Better Best 16.0 163.0 18
+18 10.0 NaN NaN Best 8.0 844.0 19
+19 10.0 NaN NaN NaN 4.0 4555.0 20
+20 10.0 A B C 2.0 111.0 21
+################################
+## Data Profile
+################################
+Rows : 21
+Columns : 7
+################################
+################################
+### Done!! #####################
+################################
+>>>
+All of column E has been deleted, owing to the fact that all values in that column were missing
+values/errors
