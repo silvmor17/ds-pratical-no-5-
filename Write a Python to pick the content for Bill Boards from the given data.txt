@@ -1,0 +1,47 @@
+D. Write a Python / R program to pick the content for Bill Boards from the given data.
+Picking Content for Billboards
+The basic process required is to combine two sets of data and then calculate the number of visitors
+per day from the range of IP addresses that access the billboards in Germany.
+Bill Board Location: Rows - 8873
+Access Visitors: Rows - 75999
+Access Location Record: Rows – 1, 81, 235
+Open Python editor and create a file named Assess-DE-Billboard.py in directory
+C:\VKHCG\02-Krennwallner\02-Assess
+################# Assess-DE-Billboard.py ######################
+import sys
+import os
+import sqlite3 as sq
+import pandas as pd
+################################################################
+Base='C:/VKHCG'
+print('################################')
+print('Working Base :',Base, ' using ', sys.platform)
+print('################################')
+################################################################
+sInputFileName1='01-Retrieve/01-EDS/02-Python/Retrieve_DE_Billboard_Locations.csv'
+sInputFileName2='01-Retrieve/01-EDS/02-Python/Retrieve_Online_Visitor.csv'
+sOutputFileName='Assess-DE-Billboard-Visitor.csv'
+Company='02-Krennwallner'
+################################################################
+sDataBaseDir=Base + '/' + Company + '/02-Assess/SQLite'
+if not os.path.exists(sDataBaseDir):
+ os.makedirs(sDataBaseDir)
+################################################################
+sDatabaseName=sDataBaseDir + '/krennwallner.db'
+conn = sq.connect(sDatabaseName)
+################################################################
+### Import Billboard Data
+################################################################
+sFileName=Base + '/' + Company + '/' + sInputFileName1
+print('################################')
+print('Loading :',sFileName)
+print('################################')
+BillboardRawData=pd.read_csv(sFileName,header=0,low_memory=False, encoding="latin-1")
+BillboardRawData.drop_duplicates(subset=None, keep='first', inplace=True)
+BillboardData=BillboardRawData
+print('Loaded Company :',BillboardData.columns.values)
+print('################################')
+################################################################
+print('################')
+sTable='Assess_BillboardData'
+print('Storing :',sDatabaseName,' Table:',sTable)
