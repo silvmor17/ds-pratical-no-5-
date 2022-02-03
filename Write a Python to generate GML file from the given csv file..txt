@@ -1,0 +1,141 @@
+E. Write a Python / R program to generate GML file from the given csv file.
+Understanding Your Online Visitor Data
+Online visitors have to be mapped to their closest billboard, to ensure we understand where and
+what they can access.
+Open your Python editor and create a file called Assess-Billboard_2_Visitor.py in directory
+C:\VKHCG\ 02-Krennwallner\02-Assess.
+################################################################
+# -*- coding: utf-8 -*-
+################################################################
+import networkx as nx
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+87
+import sys
+import os
+import sqlite3 as sq
+import pandas as pd
+from geopy.distance import vincenty
+################################################################
+Base='C:/VKHCG'
+print('################################')
+print('Working Base :',Base, ' using ', sys.platform)
+print('################################')
+################################################################
+Company='02-Krennwallner'
+sTable='Assess_BillboardVisitorData'
+sOutputFileName='Assess-DE-Billboard-Visitor.gml'
+################################################################
+sDataBaseDir=Base + '/' + Company + '/02-Assess/SQLite'
+if not os.path.exists(sDataBaseDir):
+ os.makedirs(sDataBaseDir)
+################################################################
+sDatabaseName=sDataBaseDir + '/krennwallner.db'
+conn = sq.connect(sDatabaseName)
+################################################################
+print('################')
+print('Loading :',sDatabaseName,' Table:',sTable)
+sSQL="select "
+sSQL=sSQL+ " A.BillboardCountry,"
+sSQL=sSQL+ " A.BillboardPlaceName,"
+sSQL=sSQL+ " ROUND(A.BillboardLatitude,3) AS BillboardLatitude, "
+sSQL=sSQL+ " ROUND(A.BillboardLongitude,3) AS BillboardLongitude,"
+sSQL=sSQL+ " (CASE WHEN A.BillboardLatitude < 0 THEN "
+sSQL=sSQL+ " 'S' || ROUND(ABS(A.BillboardLatitude),3)"
+sSQL=sSQL+ " ELSE "
+sSQL=sSQL+ " 'N' || ROUND(ABS(A.BillboardLatitude),3)"
+sSQL=sSQL+ " END ) AS sBillboardLatitude,"
+sSQL=sSQL+ " (CASE WHEN A.BillboardLongitude < 0 THEN "
+sSQL=sSQL+ " 'W' || ROUND(ABS(A.BillboardLongitude),3)"
+sSQL=sSQL+ " ELSE "
+sSQL=sSQL+ " 'E' || ROUND(ABS(A.BillboardLongitude),3)"
+sSQL=sSQL+ " END ) AS sBillboardLongitude,"
+sSQL=sSQL+ " A.VisitorCountry,"
+sSQL=sSQL+ " A.VisitorPlaceName,"
+sSQL=sSQL+ " ROUND(A.VisitorLatitude,3) AS VisitorLatitude, "
+sSQL=sSQL+ " ROUND(A.VisitorLongitude,3) AS VisitorLongitude,"
+sSQL=sSQL+ " (CASE WHEN A.VisitorLatitude < 0 THEN "
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+88
+sSQL=sSQL+ " 'S' || ROUND(ABS(A.VisitorLatitude),3)"
+sSQL=sSQL+ " ELSE "
+sSQL=sSQL+ " 'N' ||ROUND(ABS(A.VisitorLatitude),3)"
+sSQL=sSQL+ " END ) AS sVisitorLatitude,"
+sSQL=sSQL+ " (CASE WHEN A.VisitorLongitude < 0 THEN "
+sSQL=sSQL+ " 'W' || ROUND(ABS(A.VisitorLongitude),3)"
+sSQL=sSQL+ " ELSE "
+sSQL=sSQL+ " 'E' || ROUND(ABS(A.VisitorLongitude),3)"
+sSQL=sSQL+ " END ) AS sVisitorLongitude,"
+sSQL=sSQL+ " A.VisitorYearRate"
+sSQL=sSQL+ " from"
+sSQL=sSQL+ " Assess_BillboardVistorsData AS A;"
+BillboardVistorsData=pd.read_sql_query(sSQL, conn)
+print('################')
+################################################################
+BillboardVistorsData['Distance']=BillboardVistorsData.apply(lambda row:
+ round(
+ vincenty((row['BillboardLatitude'],row['BillboardLongitude']),
+ (row['VisitorLatitude'],row['VisitorLongitude'])).miles
+ ,4)
+ ,axis=1)
+################################################################
+G=nx.Graph()
+################################################################
+for i in range(BillboardVistorsData.shape[0]):
+ sNode0='MediaHub-' + BillboardVistorsData['BillboardCountry'][i]
+
+ sNode1='B-'+ BillboardVistorsData['sBillboardLatitude'][i] + '-'
+ sNode1=sNode1 + BillboardVistorsData['sBillboardLongitude'][i]
+ G.add_node(sNode1,
+ Nodetype='Billboard',
+ Country=BillboardVistorsData['BillboardCountry'][i],
+ PlaceName=BillboardVistorsData['BillboardPlaceName'][i],
+ Latitude=round(BillboardVistorsData['BillboardLatitude'][i],3),
+ Longitude=round(BillboardVistorsData['BillboardLongitude'][i],3))
+
+ sNode2='M-'+ BillboardVistorsData['sVisitorLatitude'][i] + '-'
+ sNode2=sNode2 + BillboardVistorsData['sVisitorLongitude'][i]
+ G.add_node(sNode2,
+ Nodetype='Mobile',
+ Country=BillboardVistorsData['VisitorCountry'][i],
+ PlaceName=BillboardVistorsData['VisitorPlaceName'][i],
+ Latitude=round(BillboardVistorsData['VisitorLatitude'][i],3),
+ Longitude=round(BillboardVistorsData['VisitorLongitude'][i],3))
+
+PSIT1P2 ~~~~~ Data Science Practical
+M. Sc. [Information Technology ] SEMESTER ~ I Teacher’s Reference Manual
+89
+ print('Link Media Hub :',sNode0,' to Billboard : ', sNode1)
+ G.add_edge(sNode0,sNode1)
+
+ print('Link Post Code :',sNode1,' to GPS : ', sNode2)
+ G.add_edge(sNode1,sNode2,distance=round(BillboardVistorsData['Distance'][i]))
+################################################################
+print('################################')
+print("Nodes of graph: ",nx.number_of_nodes(G))
+print("Edges of graph: ",nx.number_of_edges(G))
+print('################################')
+################################################################
+sFileDir=Base + '/' + Company + '/02-Assess/01-EDS/02-Python'
+if not os.path.exists(sFileDir):
+ os.makedirs(sFileDir)
+################################################################
+sFileName=sFileDir + '/' + sOutputFileName
+print('################################')
+print('Storing :', sFileName)
+print('################################')
+nx.write_gml(G,sFileName)
+sFileName=sFileName +'.gz'
+nx.write_gml(G,sFileName)
+################################################################
+################################################################
+print('### Done!! ############################################')
+################################################################
+Output:
+This will produce a set of demonstrated values onscreen, plus a graph data file named
+Assess-DE-Billboard-Visitor.gml.
+(It takes a long time to complete the process, after completion the gml file can be viewed in text
+editor)
+Hence, we have applied formulae to extract features, such as the distance between the billboard
+and the visito
