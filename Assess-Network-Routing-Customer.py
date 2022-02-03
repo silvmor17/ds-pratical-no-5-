@@ -31,3 +31,6 @@ print('################################')
 ################################################################
 Output
 Assess-Network-Routing-Customer.csv
+Output:
+You can now query features out of a graph, such as shortage paths between locations and paths from a given
+location, using Assess_Best_Logistics.gml with appropirate application.
